@@ -427,7 +427,7 @@ export default function AccountEditView({
     iconUrl ||
     (iconId
       ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${iconId}.jpg`
-      : null)
+      : 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/7.jpg')
 
   useEffect(() => {
     setFolders(initialFolders)
@@ -577,16 +577,14 @@ export default function AccountEditView({
           {/* Centered Summoner Avatar Icon */}
           <div className="flex justify-center select-none" style={{ marginBottom: '22px' }}>
             <div className="w-16 h-16 rounded-2xl bg-[#000000] border border-[#1e1e1e] flex items-center justify-center text-white shadow-xl shrink-0 overflow-hidden relative">
-              {currentIconSrc && !iconImgError ? (
-                <img
-                  src={currentIconSrc}
-                  alt="Summoner Icon"
-                  className="w-full h-full object-cover"
-                  onError={() => setIconImgError(true)}
-                />
-              ) : (
-                <RiotIcon size={30} />
-              )}
+              <img
+                src={currentIconSrc}
+                alt="Summoner Icon"
+                className="w-full h-full object-cover"
+                onError={e => {
+                  (e.currentTarget as HTMLImageElement).src = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/7.jpg'
+                }}
+              />
             </div>
           </div>
 

@@ -51,7 +51,7 @@ export default function AccountCard({
     `${account.summonerName || account.username}${account.summonerTag ? `#${account.summonerTag}` : ''}`
   const lastUsedLabel = formatRelativeTime(account.lastUsedAt || account.updatedAt)
 
-  const iconSrc = account.iconUrl || (account.iconId ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${account.iconId}.jpg` : null)
+  const iconSrc = account.iconUrl || (account.iconId ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${account.iconId}.jpg` : 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/7.jpg')
   const [imgError, setImgError] = React.useState(false)
 
   React.useEffect(() => {
@@ -122,16 +122,14 @@ export default function AccountCard({
         <div className={`${
           isFolderView ? 'w-9.5 h-9.5 rounded-xl' : 'w-8.5 h-8.5 rounded-lg'
         } bg-[#000000] border border-[#1e1e1e] flex items-center justify-center text-white shrink-0 shadow-sm overflow-hidden relative`}>
-          {iconSrc && !imgError ? (
-            <img
-              src={iconSrc}
-              alt="Summoner Icon"
-              className="w-full h-full object-cover"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <RiotIcon size={isFolderView ? 19 : 17} />
-          )}
+          <img
+            src={iconSrc}
+            alt="Summoner Icon"
+            className="w-full h-full object-cover"
+            onError={e => {
+              (e.currentTarget as HTMLImageElement).src = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/7.jpg'
+            }}
+          />
         </div>
 
         {/* Title & Rank + LP */}

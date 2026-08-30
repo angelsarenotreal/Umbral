@@ -246,16 +246,17 @@ export default function OverlayApp(): JSX.Element {
           style={{
             display: 'flex',
             alignItems: 'center',
-            height: 50,
-            padding: '8px 14px',
+            height: 48,
+            padding: '8px 12px',
             borderBottom: '1px solid #24242c',
             background: '#17171c',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            width: '100%'
           }}
         >
           {isSearching ? (
             /* Search Mode: Back button + Search Input Pill */
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
               <button
                 type="button"
                 onClick={() => {
@@ -268,9 +269,9 @@ export default function OverlayApp(): JSX.Element {
                   border: '1px solid #34343d',
                   color: '#e4e4e7',
                   cursor: 'pointer',
-                  width: 32,
-                  height: 32,
-                  borderRadius: '8px',
+                  width: 30,
+                  height: 30,
+                  borderRadius: '7px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -280,24 +281,25 @@ export default function OverlayApp(): JSX.Element {
                 onMouseEnter={e => { e.currentTarget.style.background = '#2e2e38' }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#24242b' }}
               >
-                <ArrowLeft size={15} />
+                <ArrowLeft size={14} />
               </button>
 
               <div
                 style={{
                   flex: 1,
+                  minWidth: 0,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
+                  gap: 6,
                   background: '#222228',
                   border: '1px solid #363640',
-                  borderRadius: '8px',
-                  padding: '0 10px',
-                  height: 32,
+                  borderRadius: '7px',
+                  padding: '0 8px',
+                  height: 30,
                   boxSizing: 'border-box'
                 }}
               >
-                <Search size={14} style={{ color: '#8e8e98', flexShrink: 0 }} />
+                <Search size={13} style={{ color: '#8e8e98', flexShrink: 0 }} />
                 <input
                   ref={searchRef}
                   value={search}
@@ -305,15 +307,18 @@ export default function OverlayApp(): JSX.Element {
                     setSearch(e.target.value)
                     setSelected(0)
                   }}
-                  placeholder="Search"
+                  placeholder="Search..."
                   style={{
                     flex: 1,
+                    minWidth: 0,
+                    width: '100%',
                     background: 'transparent',
                     border: 'none',
                     color: '#ffffff',
-                    fontSize: 12.5,
+                    fontSize: 12,
                     fontWeight: 500,
-                    outline: 'none'
+                    outline: 'none',
+                    padding: 0
                   }}
                 />
                 {search && (
@@ -330,17 +335,17 @@ export default function OverlayApp(): JSX.Element {
                       alignItems: 'center'
                     }}
                   >
-                    <X size={13} />
+                    <X size={12} />
                   </button>
                 )}
               </div>
             </div>
           ) : (
-            /* Default Mode: "Passwords" Title + Search & Filter Icons */
+            /* Default Mode: "Passwords" Title + Search Icon */
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
               <span
                 style={{
-                  fontSize: 14,
+                  fontSize: 13.5,
                   fontWeight: 700,
                   color: '#fafafa',
                   letterSpacing: '-0.01em'
@@ -349,7 +354,7 @@ export default function OverlayApp(): JSX.Element {
                 Passwords
               </span>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <button
                   type="button"
                   title="Search"
@@ -362,8 +367,8 @@ export default function OverlayApp(): JSX.Element {
                     border: 'none',
                     color: '#a1a1aa',
                     cursor: 'pointer',
-                    width: 32,
-                    height: 32,
+                    width: 30,
+                    height: 30,
                     borderRadius: '7px',
                     display: 'flex',
                     alignItems: 'center',
@@ -379,43 +384,21 @@ export default function OverlayApp(): JSX.Element {
                     e.currentTarget.style.background = 'transparent'
                   }}
                 >
-                  <Search size={16} />
-                </button>
-
-                <button
-                  type="button"
-                  title="Settings"
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#a1a1aa',
-                    cursor: 'pointer',
-                    width: 32,
-                    height: 32,
-                    borderRadius: '7px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.15s'
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.color = '#ffffff'
-                    e.currentTarget.style.background = '#27272e'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.color = '#a1a1aa'
-                    e.currentTarget.style.background = 'transparent'
-                  }}
-                >
-                  <SlidersHorizontal size={16} />
+                  <Search size={15} />
                 </button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Horizontal Region Filter Bubble Bar (Scrollable with clean whitespace) */}
+        {/* Horizontal Region Filter Bubble Bar (Scrollable with mouse wheel & clean whitespace) */}
         <div
+          onWheel={(e) => {
+            if (e.deltaY !== 0) {
+              e.currentTarget.scrollLeft += e.deltaY
+              e.preventDefault()
+            }
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -545,7 +528,7 @@ export default function OverlayApp(): JSX.Element {
                 a.iconUrl ||
                 (a.iconId
                   ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${a.iconId}.jpg`
-                  : null)
+                  : 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/7.jpg')
 
               return (
                 <button
@@ -584,16 +567,14 @@ export default function OverlayApp(): JSX.Element {
                       position: 'relative'
                     }}
                   >
-                    {iconSrc ? (
-                      <img
-                        src={iconSrc}
-                        alt="Icon"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={e => ((e.currentTarget as HTMLElement).style.display = 'none')}
-                      />
-                    ) : (
-                      <RiotIcon size={17} />
-                    )}
+                    <img
+                      src={iconSrc}
+                      alt="Icon"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={e => {
+                        (e.currentTarget as HTMLImageElement).src = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/7.jpg'
+                      }}
+                    />
                   </div>
 
                   {/* Account Text */}

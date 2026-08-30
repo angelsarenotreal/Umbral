@@ -147,7 +147,7 @@ export default function AccountDetailDrawer({
     }
   }
 
-  const iconSrc = account.iconUrl || (account.iconId ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${account.iconId}.jpg` : null)
+  const iconSrc = account.iconUrl || (account.iconId ? `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${account.iconId}.jpg` : 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/7.jpg')
   const [imgError, setImgError] = useState(false)
 
   useEffect(() => {
@@ -291,16 +291,14 @@ export default function AccountDetailDrawer({
             style={{ marginBottom: '18px' }}
             className="w-16 h-16 rounded-2xl bg-[#000000] border border-[#1e1e1e] flex items-center justify-center text-white shadow-lg shrink-0 overflow-hidden relative"
           >
-            {iconSrc && !imgError ? (
-              <img
-                src={iconSrc}
-                alt="Summoner Icon"
-                className="w-full h-full object-cover"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <RiotIcon size={32} />
-            )}
+            <img
+              src={iconSrc}
+              alt="Summoner Icon"
+              className="w-full h-full object-cover"
+              onError={e => {
+                (e.currentTarget as HTMLImageElement).src = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/7.jpg'
+              }}
+            />
           </div>
           <h2 className="text-[19px] font-bold text-white tracking-tight break-words max-w-full px-2 leading-snug">
             {formattedTitle}
