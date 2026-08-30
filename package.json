@@ -1,0 +1,65 @@
+{
+  "name": "umbral",
+  "version": "1.0.0",
+  "description": "Riot Client Password Manager & Autofill Overlay",
+  "main": "./out/main/index.js",
+  "author": "Umbral",
+  "license": "MIT",
+  "scripts": {
+    "predev": "node scripts/generate-icons.js && node scripts/build-tracker.js",
+    "dev": "electron-vite dev",
+    "prebuild": "node scripts/generate-icons.js && node scripts/build-tracker.js",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "dist": "npm run build && electron-builder --win --x64"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "lucide-react": "^0.428.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "^20.16.9",
+    "@types/react": "^18.3.8",
+    "@types/react-dom": "^18.3.0",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^32.1.2",
+    "electron-builder": "^25.0.5",
+    "electron-vite": "^2.3.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  },
+  "build": {
+    "appId": "com.umbral.app",
+    "productName": "Umbral",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "resources/icon.ico",
+      "target": [
+        "nsis",
+        "portable",
+        "dir"
+      ],
+      "requestedExecutionLevel": "requireAdministrator",
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "out/**/*",
+      "resources/**/*"
+    ]
+  }
+}
