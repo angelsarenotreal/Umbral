@@ -31,6 +31,18 @@ function httpsGetFast(
   return new Promise((resolve, reject) => {
     let settled = false
 
+    const safeResolve = (val: { status: number; data: string }) => {
+      if (settled) return
+      settled = true
+      resolve(val)
+    }
+
+    const safeReject = (err: any) => {
+      if (settled) return
+      settled = true
+      reject(err)
+    }
+
     const req = https.get(
       url,
       {
@@ -40,11 +52,15 @@ function httpsGetFast(
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept-Language': 'en-US,en;q=0.9',
           Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Encoding': 'gzip, deflate, br'
+          'Accept-Encoding': 'gzip, deflate'
         },
         timeout: 5000
       },
       (res) => {
+        res.on('error', (err) => {
+          if (!settled) safeReject(err)
+        })
+
         if (
           res.statusCode &&
           res.statusCode >= 300 &&
@@ -60,56 +76,70 @@ function httpsGetFast(
 
         let stream: any = res
         const encoding = res.headers['content-encoding']
+        const zlib = require('zlib')
+
         if (encoding === 'gzip') {
-          const zlib = require('zlib')
-          stream = res.pipe(zlib.createGunzip())
+          const decompressor = zlib.createGunzip()
+          decompressor.on('error', (err: any) => {
+            if (!settled) safeReject(err)
+          })
+          stream = res.pipe(decompressor)
         } else if (encoding === 'br') {
-          const zlib = require('zlib')
-          stream = res.pipe(zlib.createBrotliDecompress())
+          const decompressor = zlib.createBrotliDecompress()
+          decompressor.on('error', (err: any) => {
+            if (!settled) {
+              if (d && (d.includes('description') || d.includes('profile'))) {
+                safeResolve({ status: res.statusCode || 200, data: d })
+              } else {
+                safeReject(err)
+              }
+            }
+          })
+          stream = res.pipe(decompressor)
         } else if (encoding === 'deflate') {
-          const zlib = require('zlib')
-          stream = res.pipe(zlib.createInflate())
+          const decompressor = zlib.createInflate()
+          decompressor.on('error', (err: any) => {
+            if (!settled) safeReject(err)
+          })
+          stream = res.pipe(decompressor)
         }
 
         let d = ''
         stream.on('data', (chunk: Buffer | string) => {
           d += chunk.toString('utf8')
-          // As soon as both meta description and profile icon are downloaded (~80KB), abort reading remaining match history
           const hasMeta = d.includes('name="description"') || d.includes("name='description'")
           const hasIcon = d.includes('profile_icons/') || d.includes('profileIcon')
           if (hasMeta && hasIcon) {
-            if (!settled) {
-              settled = true
-              req.destroy()
-              resolve({ status: res.statusCode || 200, data: d })
-            }
+            safeResolve({ status: res.statusCode || 200, data: d })
+            try {
+              res.destroy()
+            } catch {}
           }
         })
 
         stream.on('end', () => {
+          safeResolve({ status: res.statusCode || 200, data: d })
+        })
+
+        stream.on('error', (err: any) => {
           if (!settled) {
-            settled = true
-            resolve({ status: res.statusCode || 200, data: d })
+            if (d && (d.includes('description') || d.includes('profile'))) {
+              safeResolve({ status: res.statusCode || 200, data: d })
+            } else {
+              safeReject(err)
+            }
           }
         })
       }
     )
 
     req.on('error', (err) => {
-      if (settled) return
-      // Ignore abort errors from req.destroy()
-      if (err.message?.includes('destroyed') || (err as any).code === 'ECONNRESET') {
-        return
-      }
-      reject(err)
+      safeReject(err)
     })
 
     req.on('timeout', () => {
-      if (!settled) {
-        settled = true
-        req.destroy()
-        reject(new Error('Request timed out'))
-      }
+      try { req.destroy() } catch {}
+      safeReject(new Error('Request timed out'))
     })
   })
 }

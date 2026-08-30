@@ -6,6 +6,14 @@ import { registerIpcHandlers, lockVault, loadSettings } from './ipcHandlers'
 import { setSetting } from './db'
 import { startProcessMonitor, stopProcessMonitor, toggleOverlay, getCurrentRiotState } from './windowManager'
 
+process.on('uncaughtException', (err) => {
+  console.error('[Umbral Main] Uncaught Exception:', err)
+})
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Umbral Main] Unhandled Rejection:', reason)
+})
+
 let mainWindow: BrowserWindow | null = null
 let overlayWindow: BrowserWindow | null = null
 let tray: Tray | null = null
