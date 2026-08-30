@@ -312,10 +312,17 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
           acc.iconUrl = res.iconUrl
           changed = true
         }
-        if (res.rankLp && acc.rankLp !== res.rankLp) {
+        if (res.rankLp && (acc.rankLp !== res.rankLp || acc.rank !== res.rankLp)) {
           acc.rankLp = res.rankLp
           acc.rank = res.rankLp
           changed = true
+        }
+        if (res.canonicalName && res.canonicalTag) {
+          if (acc.summonerName !== res.canonicalName || acc.summonerTag !== res.canonicalTag) {
+            acc.summonerName = res.canonicalName
+            acc.summonerTag = res.canonicalTag
+            changed = true
+          }
         }
         if (changed) {
           acc.updatedAt = new Date().toISOString()
@@ -348,6 +355,7 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
         const plaintext = decrypt(blob, vaultKey!)
         const account: Account = JSON.parse(plaintext)
         account.id = row.id
+        account.folderId = row.folderId
         account.createdAt = row.createdAt
         account.updatedAt = row.updatedAt
         if (account.rankLp) account.rankLp = sanitizeRank(account.rankLp)
@@ -425,6 +433,13 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
               acc.rankLp = res.rankLp
               acc.rank = res.rankLp
               changed = true
+            }
+            if (res.canonicalName && res.canonicalTag) {
+              if (acc.summonerName !== res.canonicalName || acc.summonerTag !== res.canonicalTag) {
+                acc.summonerName = res.canonicalName
+                acc.summonerTag = res.canonicalTag
+                changed = true
+              }
             }
             if (changed) {
               acc.updatedAt = new Date().toISOString()

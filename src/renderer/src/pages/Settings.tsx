@@ -410,7 +410,7 @@ export default function Settings(): JSX.Element {
       >
         <h1 className="text-2xl font-bold text-white tracking-tight">Settings</h1>
         <div className="text-xs text-zinc-500 font-medium flex items-center gap-1.5">
-          <span>Umbral v1.0.2 • by</span>
+          <span>Umbral v1.0.3 • by</span>
           <button
             type="button"
             onClick={() => api.shell.openExternal('https://github.com/angelsarenotreal')}
