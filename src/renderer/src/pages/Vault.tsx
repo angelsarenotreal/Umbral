@@ -656,29 +656,39 @@ export default function Vault({
           }}
         >
           {sortedAccounts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
-              {accounts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-28 gap-2.5 text-center">
+              {searchQuery ? (
+                <div className="text-center py-16 text-zinc-500 text-sm">
+                  No items match your search "{searchQuery}"
+                </div>
+              ) : (
                 <>
-                  <div className="w-14 h-14 rounded-2xl bg-[#151518] border border-[#222226] flex items-center justify-center text-zinc-500 mb-1">
-                    <ShieldAlert size={28} />
-                  </div>
                   <div>
-                    <h3 className="text-base font-bold text-white">Your vault is empty</h3>
-                    <p className="text-xs text-zinc-400 mt-1">Save your first League of Legends or Valorant credentials</p>
+                    <h3 className="text-base font-bold text-white tracking-tight">
+                      {isFolder ? 'This folder is empty' : 'Your vault is empty'}
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1.5">
+                      {isFolder
+                        ? 'Save your first League of Legends credentials in this folder'
+                        : 'Save your first League of Legends credentials'}
+                    </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setEditingAccount({ folderId: selectedFolderId })}
-                    className="mt-2 flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-[#222227] text-white hover:bg-[#2c2c34] border border-[#2e2e36] transition-all cursor-pointer"
+                    style={{
+                      paddingLeft: '22px',
+                      paddingRight: '22px',
+                      paddingTop: '10px',
+                      paddingBottom: '10px',
+                      marginTop: '12px'
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl text-xs font-bold bg-[#181818] text-white hover:bg-[#222222] border border-[#2a2a2a] transition-all cursor-pointer shadow-sm hover:border-[#383838]"
                   >
-                    <Plus size={14} />
+                    <Plus size={15} strokeWidth={2.5} />
                     <span>Create Item</span>
                   </button>
                 </>
-              ) : (
-                <div className="text-center py-16 text-zinc-500 text-sm">
-                  No items match your search "{searchQuery}"
-                </div>
               )}
             </div>
           ) : (
