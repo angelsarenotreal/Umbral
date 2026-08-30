@@ -7,7 +7,8 @@ import {
   Folder as FolderIcon,
   ChevronsUpDown,
   FolderPlus,
-  ArrowLeft
+  ArrowLeft,
+  X
 } from 'lucide-react'
 import RiotIcon from './RiotIcon'
 import type { Account, Folder } from '../../../shared/types'
@@ -179,62 +180,59 @@ function FolderDropdown({
             </span>
           </div>
         </div>
-        <ChevronsUpDown size={17} className="text-zinc-400 shrink-0" />
+        <ChevronsUpDown size={16} className="text-zinc-500 shrink-0 ml-2" />
       </button>
 
-      {/* Custom Dropdown Popup */}
+      {/* Floating Dropdown Menu */}
       {open && (
         <div
-          style={{ padding: '10px' }}
-          className="absolute left-0 right-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-2xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100 max-h-72 flex flex-col"
+          style={{ padding: '8px' }}
+          className="absolute left-0 right-0 top-full mt-2 bg-[#141414] border border-[#262626] rounded-2xl shadow-2xl z-50 max-h-72 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
         >
-          <div className="overflow-y-auto flex-1 space-y-1" style={{ padding: '2px' }}>
-            {/* + New folder */}
+          {/* Header Action: Add Folder */}
+          <div className="shrink-0 mb-2">
             {isCreating ? (
-              <div
-                style={{ padding: '8px 12px' }}
-                className="bg-[#1f1f1f] border border-[#2a2a2a] rounded-xl flex items-center gap-2.5"
-              >
-                <FolderPlus size={18} className="text-[#00c0f0] fill-[#00c0f0] shrink-0" />
+              <div className="flex items-center gap-2 px-1">
                 <input
                   type="text"
-                  autoFocus
                   value={newFolderName}
                   onChange={e => setNewFolderName(e.target.value)}
+                  placeholder="Folder name..."
+                  autoFocus
                   onKeyDown={e => {
                     if (e.key === 'Enter') handleCreate()
                     if (e.key === 'Escape') setIsCreating(false)
                   }}
-                  placeholder="Folder name..."
-                  className="bg-transparent text-sm font-bold text-white outline-none flex-1 min-w-0 placeholder:text-zinc-500"
+                  style={{ height: '36px', paddingLeft: '12px', paddingRight: '12px' }}
+                  className="flex-1 bg-[#1a1a1a] border border-[#333333] focus:border-white text-xs font-semibold text-white rounded-xl outline-none select-text"
                 />
                 <button
                   type="button"
                   onClick={handleCreate}
-                  style={{ height: '34px', minWidth: '72px', paddingLeft: '18px', paddingRight: '18px' }}
-                  className="text-xs font-bold bg-[#00c0f0] text-black rounded-xl hover:bg-cyan-300 transition-colors cursor-pointer shrink-0 flex items-center justify-center shadow-md ml-2"
+                  style={{ height: '36px', paddingLeft: '14px', paddingRight: '14px' }}
+                  className="rounded-xl text-xs font-bold bg-white text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer shrink-0"
                 >
-                  Add
+                  Create
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => setIsCreating(true)}
-                style={{ padding: '9px 12px' }}
-                className="w-full flex items-center gap-3 text-sm font-bold text-white hover:bg-[#1f1f1f] rounded-xl transition-colors cursor-pointer text-left"
+                style={{ padding: '10px 12px' }}
+                className="w-full flex items-center gap-2.5 text-xs font-bold text-zinc-300 hover:text-white hover:bg-[#202020] rounded-xl transition-colors cursor-pointer text-left"
               >
-                <div className="relative flex items-center justify-center shrink-0">
-                  <FolderIcon size={18} className="text-[#00c0f0] fill-[#00c0f0]" />
-                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-extrabold text-zinc-950 pt-0.5">
-                    +
-                  </span>
-                </div>
-                <span>New folder</span>
+                <FolderPlus size={16} className="text-zinc-400" />
+                <span>New Folder...</span>
               </button>
             )}
+          </div>
 
-            {/* No folder */}
+          <div className="h-[1px] bg-[#222222] my-1 shrink-0" />
+
+          {/* Folder Options List */}
+          <div className="overflow-y-auto max-h-48 space-y-1">
+            {/* No Folder / Default option */}
             <button
               type="button"
               onClick={() => {
@@ -242,20 +240,18 @@ function FolderDropdown({
                 setOpen(false)
               }}
               style={{ padding: '9px 12px' }}
-              className={`w-full flex items-center text-sm rounded-xl transition-colors cursor-pointer text-left ${
+              className={`w-full flex items-center gap-3 text-sm rounded-xl transition-colors cursor-pointer text-left ${
                 selectedFolderId === null
-                  ? 'bg-[#222222] text-white font-bold border border-[#2a2a2a]'
-                  : 'text-zinc-300 hover:bg-[#1f1f1f] hover:text-white font-medium'
+                  ? 'bg-[#222222] text-white font-bold border border-[#2a2a2a] shadow-sm'
+                  : 'text-zinc-400 hover:bg-[#1f1f1f] hover:text-white font-medium'
               }`}
             >
-              No folder
+              <div className="w-[18px] h-[18px] rounded border border-dashed border-zinc-600 flex items-center justify-center shrink-0" />
+              <span className="truncate">No folder</span>
             </button>
 
-            <div className="border-t border-[#262626]" style={{ marginTop: '6px', marginBottom: '6px' }} />
-
-            {/* List of folders */}
             {folders.map(f => {
-              const isSelected = f.id === selectedFolderId
+              const isSelected = selectedFolderId === f.id
               return (
                 <button
                   key={f.id}
@@ -299,7 +295,8 @@ const REGION_OPTIONS = [
   { id: 'SG', label: 'SG', name: 'Singapore' },
   { id: 'TW', label: 'TW', name: 'Taiwan' },
   { id: 'VN', label: 'VN', name: 'Vietnam' },
-  { id: 'TH', label: 'TH', name: 'Thailand' }
+  { id: 'TH', label: 'TH', name: 'Thailand' },
+  { id: 'PBE', label: 'PBE', name: 'Public Beta Environment' }
 ]
 
 function RegionDropdown({
@@ -416,6 +413,15 @@ export default function AccountEditView({
   const [showPassword, setShowPassword] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const errorTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const showError = (msg: string) => {
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+    setError(msg)
+    errorTimerRef.current = setTimeout(() => {
+      setError(null)
+    }, 4000)
+  }
 
   const currentIconSrc =
     iconUrl ||
@@ -462,11 +468,11 @@ export default function AccountEditView({
 
   const handleSave = async () => {
     if (!username.trim()) {
-      setError('Username is required')
+      showError('Username is required')
       return
     }
     if (!password) {
-      setError('Password is required')
+      showError('Password is required')
       return
     }
 
@@ -501,14 +507,34 @@ export default function AccountEditView({
 
       await onSave(updatedAccount)
     } catch (err: any) {
-      setError(err.message || 'Failed to save account')
+      showError(err.message || 'Failed to save account')
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#090909] select-none overflow-y-auto">
+    <div className="flex-1 flex flex-col h-full bg-[#090909] select-none overflow-y-auto relative">
+      {/* Floating Error Toast Notification Popup */}
+      {error && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200 pointer-events-auto select-none">
+          <div
+            style={{ padding: '12px 20px', gap: '10px' }}
+            className="flex items-center bg-[#18181c] border border-red-500/50 text-red-400 rounded-2xl shadow-2xl backdrop-blur-xl text-xs font-bold"
+          >
+            <div className="w-2 h-2 rounded-full bg-red-500 shrink-0 animate-pulse" />
+            <span>{error}</span>
+            <button
+              type="button"
+              onClick={() => setError(null)}
+              className="ml-2 text-zinc-500 hover:text-white transition-colors cursor-pointer p-0.5"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top Header / Action Bar */}
       <div
         className="sticky top-0 z-30 bg-[#090909]/95 backdrop-blur-md flex items-center justify-between border-b border-[#1e1e1e] shrink-0"
@@ -563,12 +589,6 @@ export default function AccountEditView({
               )}
             </div>
           </div>
-
-          {error && (
-            <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs font-semibold text-red-400">
-              {error}
-            </div>
-          )}
 
           {/* Riot Identity Row: Game Name + Tagline + Region */}
           <div className="flex items-center gap-2.5" style={{ marginBottom: '22px' }}>

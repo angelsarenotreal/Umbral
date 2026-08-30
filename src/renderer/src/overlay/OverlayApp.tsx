@@ -430,7 +430,7 @@ export default function OverlayApp(): JSX.Element {
             flexShrink: 0
           }}
         >
-          {['ALL', 'EUW', 'NA', 'EUNE', 'KR', 'BR', 'LAN', 'LAS', 'OCE', 'TR', 'RU', 'JP', 'ME', 'SG', 'TW', 'VN', 'TH'].map(reg => {
+          {['ALL', 'EUW', 'NA', 'EUNE', 'KR', 'BR', 'LAN', 'LAS', 'OCE', 'TR', 'RU', 'JP', 'ME', 'SG', 'TW', 'VN', 'TH', 'PBE'].map(reg => {
             const isSelected = selectedRegion === reg
             return (
               <button
