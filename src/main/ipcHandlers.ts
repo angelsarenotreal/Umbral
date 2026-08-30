@@ -1,4 +1,5 @@
 import { app, ipcMain, BrowserWindow, clipboard, shell, safeStorage } from 'electron'
+import { exec } from 'child_process'
 import { v4 as uuidv4 } from 'uuid'
 import {
   generateSalt,
@@ -568,6 +569,22 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
     data: loadSettings()
   }))
 
+function setWindowsStartupRegistry(enable: boolean): void {
+  if (process.platform !== 'win32') return
+  const exePath = `\\"${process.execPath}\\" --hidden`
+  if (enable) {
+    exec(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v "Umbral" /t REG_SZ /d "${exePath}" /f`, (err) => {
+      if (err) console.warn('[Umbral] Failed to set registry startup:', err)
+      else console.log('[Umbral] Set Windows startup registry key successfully')
+    })
+  } else {
+    exec(`reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v "Umbral" /f`, (err) => {
+      if (err) console.warn('[Umbral] Failed to delete registry startup:', err)
+      else console.log('[Umbral] Removed Windows startup registry key successfully')
+    })
+  }
+}
+
   ipcMain.handle('settings:set', (_, newSettings: Partial<Settings>): IpcResponse => {
     try {
       const current = loadSettings()
@@ -581,6 +598,7 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
             path: process.execPath,
             args: ['--hidden']
           })
+          setWindowsStartupRegistry(newSettings.startWithWindows)
         } catch {}
       }
 
@@ -598,7 +616,8 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
         path: process.execPath,
         args: ['--hidden']
       })
-      return { status: 'ok', data: { openAtLogin: itemSettings.openAtLogin } }
+      const current = loadSettings()
+      return { status: 'ok', data: { openAtLogin: itemSettings.openAtLogin || !!current.startWithWindows } }
     } catch (e: any) {
       return { status: 'error', error: e.message }
     }
@@ -611,6 +630,7 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
         path: process.execPath,
         args: ['--hidden']
       })
+      setWindowsStartupRegistry(openAtLogin)
       const current = loadSettings()
       setSetting('settings', JSON.stringify({ ...current, startWithWindows: openAtLogin }))
       return { status: 'ok' }
