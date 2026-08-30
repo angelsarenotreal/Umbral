@@ -647,7 +647,7 @@ export default function Vault({
 
         {/* Scrollable Accounts List Area with refined compact spacing */}
         <div
-          className={`flex-1 overflow-y-auto ${isFolder ? 'space-y-2' : 'space-y-1.5'}`}
+          className={`flex-1 overflow-y-auto ${sortedAccounts.length === 0 ? 'flex flex-col' : isFolder ? 'space-y-2' : 'space-y-1.5'}`}
           style={{
             paddingLeft: isFolder ? '36px' : '32px',
             paddingRight: isFolder ? '36px' : '32px',
@@ -656,7 +656,7 @@ export default function Vault({
           }}
         >
           {sortedAccounts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-28 gap-2.5 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center -translate-y-8 gap-3 text-center">
               {searchQuery ? (
                 <div className="text-center py-16 text-zinc-500 text-sm">
                   No items match your search "{searchQuery}"
