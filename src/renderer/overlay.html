@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" style="background: transparent !important; background-color: transparent !important;">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Umbral Overlay</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body, #overlay-root {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        background: transparent !important;
+        background-color: transparent !important;
+      }
+    </style>
+  </head>
+  <body style="background: transparent !important; background-color: transparent !important;">
+    <div id="overlay-root" style="background: transparent !important; background-color: transparent !important; height: 100%; width: 100%;"></div>
+    <script type="module" src="./src/overlayMain.tsx"></script>
+  </body>
+</html>
