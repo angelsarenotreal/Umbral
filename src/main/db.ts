@@ -23,12 +23,7 @@ interface VaultDatabaseSchema {
 
 const DEFAULT_DB: VaultDatabaseSchema = {
   meta: {},
-  folders: [
-    { id: 'f-euw', name: 'EUW Accounts', color: '#3b82f6', createdAt: new Date().toISOString() },
-    { id: 'f-na', name: 'NA Accounts', color: '#10b981', createdAt: new Date().toISOString() },
-    { id: 'f-smurf', name: 'Smurfs & Alts', color: '#f59e0b', createdAt: new Date().toISOString() },
-    { id: 'f-rec', name: 'Recovery Keys', color: '#ef4444', createdAt: new Date().toISOString() }
-  ],
+  folders: [],
   accounts: [],
   settings: {}
 }

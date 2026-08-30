@@ -120,15 +120,6 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
       const passwordHash = hashKey(vaultKey)
       setVaultMeta({ salt, passwordHash, version: 1 })
 
-      // Seed default folders if empty
-      if (getAllFolders().length === 0) {
-        const defaultFolders = ['EUW Accounts', 'NA Accounts', 'Smurfs & Alts']
-        const now = new Date().toISOString()
-        for (const name of defaultFolders) {
-          saveFolder({ id: uuidv4(), name, color: '#38bdf8', createdAt: now })
-        }
-      }
-
       if (stayLoggedIn) {
         saveEncryptedMasterPassword(masterPassword)
         const current = loadSettings()
