@@ -411,6 +411,21 @@ export default function AccountDetailDrawer({
             </div>
           )}
 
+          {/* Region Field */}
+          <div
+            style={{ padding: '13px 16px' }}
+            className="group relative flex items-center justify-between rounded-2xl hover:bg-[#1e1e1e] transition-all select-none"
+          >
+            <div className="min-w-0 flex-1">
+              <span className="text-xs text-zinc-400 font-medium block">
+                Region
+              </span>
+              <p className="text-sm font-bold text-white truncate mt-1 leading-snug">
+                {account.region ? account.region.toUpperCase() : 'EUW'}
+              </p>
+            </div>
+          </div>
+
           {/* Folder Field - Click navigates to that folder */}
           <div
             onClick={() => {

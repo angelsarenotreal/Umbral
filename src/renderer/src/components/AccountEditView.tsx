@@ -283,6 +283,112 @@ function FolderDropdown({
   )
 }
 
+const REGION_OPTIONS = [
+  { id: 'EUW', label: 'EUW', name: 'Europe West' },
+  { id: 'NA', label: 'NA', name: 'North America' },
+  { id: 'EUNE', label: 'EUNE', name: 'Europe Nordic & East' },
+  { id: 'KR', label: 'KR', name: 'Korea' },
+  { id: 'BR', label: 'BR', name: 'Brazil' },
+  { id: 'LAN', label: 'LAN', name: 'Latin America North' },
+  { id: 'LAS', label: 'LAS', name: 'Latin America South' },
+  { id: 'OCE', label: 'OCE', name: 'Oceania' },
+  { id: 'TR', label: 'TR', name: 'Turkey' },
+  { id: 'RU', label: 'RU', name: 'Russia' },
+  { id: 'JP', label: 'JP', name: 'Japan' },
+  { id: 'ME', label: 'ME', name: 'Middle East' },
+  { id: 'SG', label: 'SG', name: 'Singapore' },
+  { id: 'TW', label: 'TW', name: 'Taiwan' },
+  { id: 'VN', label: 'VN', name: 'Vietnam' },
+  { id: 'TH', label: 'TH', name: 'Thailand' }
+]
+
+function RegionDropdown({
+  selectedRegion,
+  onSelectRegion
+}: {
+  selectedRegion: string
+  onSelectRegion: (reg: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    window.addEventListener('mousedown', handleOutside)
+    return () => window.removeEventListener('mousedown', handleOutside)
+  }, [])
+
+  const current =
+    REGION_OPTIONS.find((r) => r.id.toLowerCase() === (selectedRegion || 'euw').toLowerCase()) ||
+    REGION_OPTIONS[0]
+
+  return (
+    <div className="relative select-none" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{ height: '60px', paddingLeft: '14px', paddingRight: '12px' }}
+        className={`relative w-full bg-[#141414] border rounded-xl flex items-center justify-between text-left transition-colors cursor-pointer select-none ${
+          open ? 'border-white ring-1 ring-white/20' : 'border-[#242424] hover:border-[#333333]'
+        }`}
+      >
+        <div className="flex flex-col justify-center h-full min-w-0">
+          <span
+            style={{ marginBottom: '5px' }}
+            className="text-[10px] font-semibold text-zinc-400 tracking-wide select-none leading-none block"
+          >
+            Region
+          </span>
+          <span className="text-sm font-bold text-white leading-none truncate block">
+            {current.id}
+          </span>
+        </div>
+        <ChevronsUpDown size={14} className="text-zinc-500 shrink-0 ml-1" />
+      </button>
+
+      {open && (
+        <div
+          style={{ padding: '6px', maxHeight: '220px' }}
+          className="absolute right-0 top-full mt-2 min-w-[175px] bg-[#141414] border border-[#262626] rounded-2xl shadow-2xl z-50 overflow-y-auto space-y-1 animate-in fade-in zoom-in-95"
+        >
+          {REGION_OPTIONS.map((r) => {
+            const isSelected = r.id.toLowerCase() === (selectedRegion || 'euw').toLowerCase()
+            return (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => {
+                  onSelectRegion(r.id)
+                  setOpen(false)
+                }}
+                style={{ paddingLeft: '12px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px' }}
+                className={`w-full flex items-center justify-between text-xs font-bold rounded-xl transition-colors cursor-pointer text-left ${
+                  isSelected
+                    ? 'bg-white text-zinc-950 shadow-sm'
+                    : 'text-zinc-300 hover:bg-[#202020] hover:text-white'
+                }`}
+              >
+                <span>{r.id}</span>
+                <span
+                  className={`text-[10.5px] font-normal ${
+                    isSelected ? 'text-zinc-700' : 'text-zinc-500'
+                  }`}
+                >
+                  {r.name}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function AccountEditView({
   account,
   folders: initialFolders,
@@ -298,6 +404,7 @@ export default function AccountEditView({
 
   const [gameName, setGameName] = useState(initialGameName)
   const [tagLine, setTagLine] = useState(initialTagLine ? initialTagLine.replace(/^#/, '') : '')
+  const [region, setRegion] = useState(account?.region || 'EUW')
   const [username, setUsername] = useState(account?.username || '')
   const [password, setPassword] = useState(account?.password || '')
   const [folderId, setFolderId] = useState<string | null>(account?.folderId || null)
@@ -380,7 +487,7 @@ export default function AccountEditView({
         summonerTag: cleanTag,
         username: username.trim(),
         password: password.trim(),
-        region: account.region || 'EUW',
+        region: region || 'EUW',
         rank: account.rank || 'Unranked',
         iconId,
         iconUrl,
@@ -463,10 +570,10 @@ export default function AccountEditView({
             </div>
           )}
 
-          {/* Game Name & Tagline */}
-          <div className="flex items-center gap-3" style={{ marginBottom: '22px' }}>
+          {/* Riot Identity Row: Game Name + Tagline + Region */}
+          <div className="flex items-center gap-2.5" style={{ marginBottom: '22px' }}>
             {/* Game Name */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <FloatingField
                 label="Game Name"
                 value={gameName}
@@ -475,12 +582,20 @@ export default function AccountEditView({
             </div>
 
             {/* Tagline with # prefix */}
-            <div className="w-32">
+            <div className="w-24 shrink-0">
               <FloatingField
-                label="Tagline"
+                label="Tag"
                 value={tagLine}
-                onChange={val => setTagLine(val.replace(/^#/, ''))}
+                onChange={(val) => setTagLine(val.replace(/^#/, ''))}
                 prefix="#"
+              />
+            </div>
+
+            {/* Region Selector */}
+            <div className="w-24 shrink-0">
+              <RegionDropdown
+                selectedRegion={region}
+                onSelectRegion={setRegion}
               />
             </div>
           </div>
