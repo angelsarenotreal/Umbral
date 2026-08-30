@@ -46,9 +46,7 @@
     "win": {
       "icon": "resources/icon.ico",
       "target": [
-        "nsis",
-        "portable",
-        "dir"
+        "nsis"
       ],
       "requestedExecutionLevel": "requireAdministrator",
       "forceCodeSigning": false
