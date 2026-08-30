@@ -13,7 +13,7 @@ const RIOT_PROCESS_NAMES = [
 
 // Calibrated for top-left of Riot Client thumbnail artwork image
 const OVERLAY_WIDTH = 280
-const OVERLAY_HEIGHT = 350
+const OVERLAY_HEIGHT = 370
 const DEFAULT_OFFSET_X = 0.280 // ~28.0% from left of Riot Client window (higher & slightly right inside artwork)
 const DEFAULT_OFFSET_Y = 0.038 // ~3.8% from top of Riot Client window (top aligned with artwork header)
 

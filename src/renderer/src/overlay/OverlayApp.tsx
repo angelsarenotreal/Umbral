@@ -19,6 +19,7 @@ type OverlayAccount = {
 
 export default function OverlayApp(): JSX.Element {
   const [accounts, setAccounts] = useState<OverlayAccount[]>([])
+  const [selectedRegion, setSelectedRegion] = useState<string>('ALL')
   const [isOpen, setIsOpen] = useState(false)
   const [isBtnHovered, setIsBtnHovered] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
@@ -85,6 +86,11 @@ export default function OverlayApp(): JSX.Element {
   }, [])
 
   const filtered = accounts.filter(a => {
+    if (selectedRegion !== 'ALL') {
+      const accReg = (a.region || 'EUW').toUpperCase()
+      if (accReg !== selectedRegion) return false
+    }
+
     const q = search.toLowerCase().trim()
     return (
       !q ||
@@ -224,7 +230,7 @@ export default function OverlayApp(): JSX.Element {
         <div
           style={{
             width: '100%',
-            maxHeight: 280,
+            maxHeight: 310,
             background: '#131316',
             border: '1px solid #2e2e36',
             borderRadius: '12px',
@@ -406,6 +412,68 @@ export default function OverlayApp(): JSX.Element {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Horizontal Region Filter Bubble Bar (Scrollable with clean whitespace) */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '7px 10px 8px 10px',
+            background: '#15151a',
+            borderBottom: '1px solid #23232b',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            scrollbarWidth: 'none',
+            boxSizing: 'border-box',
+            flexShrink: 0
+          }}
+        >
+          {['ALL', 'EUW', 'NA', 'EUNE', 'KR', 'BR', 'LAN', 'LAS', 'OCE', 'TR', 'RU', 'JP', 'ME', 'SG', 'TW', 'VN', 'TH'].map(reg => {
+            const isSelected = selectedRegion === reg
+            return (
+              <button
+                key={reg}
+                type="button"
+                onClick={() => {
+                  setSelectedRegion(selectedRegion === reg && reg !== 'ALL' ? 'ALL' : reg)
+                  setSelected(0)
+                }}
+                style={{
+                  padding: '3.5px 9px',
+                  borderRadius: '9999px',
+                  fontSize: '10.5px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  border: isSelected ? '1px solid #ffffff' : '1px solid #2c2c36',
+                  background: isSelected ? '#ffffff' : '#1c1c23',
+                  color: isSelected ? '#0d0d10' : '#a1a1aa',
+                  transition: 'all 0.15s ease',
+                  flexShrink: 0,
+                  userSelect: 'none',
+                  letterSpacing: '0.02em',
+                  lineHeight: 1
+                }}
+                onMouseEnter={e => {
+                  if (!isSelected) {
+                    e.currentTarget.style.color = '#ffffff'
+                    e.currentTarget.style.borderColor = '#444452'
+                    e.currentTarget.style.background = '#24242d'
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isSelected) {
+                    e.currentTarget.style.color = '#a1a1aa'
+                    e.currentTarget.style.borderColor = '#2c2c36'
+                    e.currentTarget.style.background = '#1c1c23'
+                  }
+                }}
+              >
+                {reg}
+              </button>
+            )
+          })}
         </div>
 
         {/* Status notice */}
