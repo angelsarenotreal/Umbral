@@ -352,8 +352,8 @@ function RegionDropdown({
 
       {open && (
         <div
-          style={{ padding: '6px', maxHeight: '220px' }}
-          className="absolute right-0 top-full mt-2 min-w-[175px] bg-[#141414] border border-[#262626] rounded-2xl shadow-2xl z-50 overflow-y-auto space-y-1 animate-in fade-in zoom-in-95"
+          style={{ padding: '6px', maxHeight: '220px', width: '220px' }}
+          className="absolute right-0 top-full mt-2 bg-[#141414] border border-[#262626] rounded-2xl shadow-2xl z-50 overflow-y-auto space-y-1 animate-in fade-in zoom-in-95"
         >
           {REGION_OPTIONS.map((r) => {
             const isSelected = r.id.toLowerCase() === (selectedRegion || 'euw').toLowerCase()
@@ -366,15 +366,15 @@ function RegionDropdown({
                   setOpen(false)
                 }}
                 style={{ paddingLeft: '12px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px' }}
-                className={`w-full flex items-center justify-between text-xs font-bold rounded-xl transition-colors cursor-pointer text-left ${
+                className={`w-full flex items-center justify-between gap-3 text-xs font-bold rounded-xl transition-colors cursor-pointer text-left ${
                   isSelected
                     ? 'bg-white text-zinc-950 shadow-sm'
                     : 'text-zinc-300 hover:bg-[#202020] hover:text-white'
                 }`}
               >
-                <span>{r.id}</span>
+                <span className="shrink-0">{r.id}</span>
                 <span
-                  className={`text-[10.5px] font-normal ${
+                  className={`text-[11px] font-normal text-right whitespace-nowrap ${
                     isSelected ? 'text-zinc-700' : 'text-zinc-500'
                   }`}
                 >
