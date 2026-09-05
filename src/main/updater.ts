@@ -1,4 +1,4 @@
-﻿import { ipcMain, BrowserWindow, app } from 'electron'
+import { ipcMain, BrowserWindow, app } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import type { IpcResponse } from '../shared/types'
 
@@ -32,16 +32,19 @@ export function initAutoUpdater(mainWindow: BrowserWindow): void {
   activeMainWindow = mainWindow
 
   // Configure autoUpdater
+  autoUpdater.logger = console
   autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = true
 
   // AutoUpdater Event Listeners
   autoUpdater.on('checking-for-update', () => {
+    console.log('[Umbral AutoUpdater] Checking for updates...')
     currentUpdateState = { status: 'checking' }
     broadcastUpdateState()
   })
 
   autoUpdater.on('update-available', (info) => {
+    console.log('[Umbral AutoUpdater] Update available:', info.version)
     currentUpdateState = {
       status: 'available',
       version: info.version,
@@ -52,11 +55,13 @@ export function initAutoUpdater(mainWindow: BrowserWindow): void {
   })
 
   autoUpdater.on('update-not-available', () => {
+    console.log('[Umbral AutoUpdater] Update not available (current version is up to date)')
     currentUpdateState = { status: 'not-available' }
     broadcastUpdateState()
   })
 
   autoUpdater.on('download-progress', (progressObj) => {
+    console.log(`[Umbral AutoUpdater] Download progress: ${Math.round(progressObj.percent)}%`)
     currentUpdateState = {
       ...currentUpdateState,
       status: 'downloading',
@@ -71,6 +76,7 @@ export function initAutoUpdater(mainWindow: BrowserWindow): void {
   })
 
   autoUpdater.on('update-downloaded', (info) => {
+    console.log('[Umbral AutoUpdater] Update downloaded successfully:', info.version)
     currentUpdateState = {
       status: 'downloaded',
       version: info.version
@@ -80,11 +86,10 @@ export function initAutoUpdater(mainWindow: BrowserWindow): void {
 
   autoUpdater.on('error', (err) => {
     console.error('[Umbral AutoUpdater] Error:', err)
-    // Only set error state if we were in the middle of checking or downloading
     currentUpdateState = {
       ...currentUpdateState,
       status: 'error',
-      error: err.message || 'Update check failed'
+      error: err.message || 'Update check or download failed'
     }
     broadcastUpdateState()
   })
@@ -95,7 +100,6 @@ export function initAutoUpdater(mainWindow: BrowserWindow): void {
       if (app.isPackaged) {
         await autoUpdater.checkForUpdates()
       } else {
-        // In dev mode, simulate or attempt check
         try {
           await autoUpdater.checkForUpdates()
         } catch (devErr: any) {
@@ -110,6 +114,7 @@ export function initAutoUpdater(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('updater:download', async (): Promise<IpcResponse> => {
     try {
+      console.log('[Umbral AutoUpdater] Starting downloadUpdate...')
       currentUpdateState = {
         ...currentUpdateState,
         status: 'downloading',
@@ -119,6 +124,7 @@ export function initAutoUpdater(mainWindow: BrowserWindow): void {
       await autoUpdater.downloadUpdate()
       return { status: 'ok' }
     } catch (e: any) {
+      console.error('[Umbral AutoUpdater] downloadUpdate failed:', e)
       currentUpdateState = { ...currentUpdateState, status: 'error', error: e.message }
       broadcastUpdateState()
       return { status: 'error', error: e.message }
