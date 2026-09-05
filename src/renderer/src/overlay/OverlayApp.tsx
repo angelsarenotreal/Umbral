@@ -15,6 +15,9 @@ type OverlayAccount = {
   rankLp?: string
   region: string
   role: string
+  lastUsedAt?: string
+  updatedAt?: string
+  createdAt?: string
 }
 
 export default function OverlayApp(): JSX.Element {
@@ -85,29 +88,39 @@ export default function OverlayApp(): JSX.Element {
     return () => window.removeEventListener('blur', handleBlur)
   }, [])
 
-  const filtered = accounts.filter(a => {
-    if (selectedRegion !== 'ALL') {
-      const accReg = (a.region || 'EUW').toUpperCase()
-      if (accReg !== selectedRegion) return false
-    }
+  const filtered = accounts
+    .filter(a => {
+      if (selectedRegion !== 'ALL') {
+        const accReg = (a.region || 'EUW').toUpperCase()
+        if (accReg !== selectedRegion) return false
+      }
 
-    const q = search.toLowerCase().trim()
-    return (
-      !q ||
-      a.username?.toLowerCase().includes(q) ||
-      a.summonerName?.toLowerCase().includes(q) ||
-      a.title?.toLowerCase().includes(q) ||
-      a.rankLp?.toLowerCase().includes(q) ||
-      a.rank?.toLowerCase().includes(q) ||
-      a.region?.toLowerCase().includes(q)
-    )
-  })
+      const q = search.toLowerCase().trim()
+      return (
+        !q ||
+        a.username?.toLowerCase().includes(q) ||
+        a.summonerName?.toLowerCase().includes(q) ||
+        a.title?.toLowerCase().includes(q) ||
+        a.rankLp?.toLowerCase().includes(q) ||
+        a.rank?.toLowerCase().includes(q) ||
+        a.region?.toLowerCase().includes(q)
+      )
+    })
+    .sort((a, b) => {
+      const timeA = new Date(a.lastUsedAt || a.updatedAt || a.createdAt || 0).getTime()
+      const timeB = new Date(b.lastUsedAt || b.updatedAt || b.createdAt || 0).getTime()
+      return timeB - timeA
+    })
 
   const handleAutofill = async (account: OverlayAccount) => {
     if (filling) return
     setFilling(account.id)
     setStatusMsg(`Autofilling ${account.title || account.username}...`)
     try {
+      const now = new Date().toISOString()
+      setAccounts(prev =>
+        prev.map(a => (a.id === account.id ? { ...a, lastUsedAt: now } : a))
+      )
       const res = await api.overlay.autofill(account.id)
       if (res.status === 'error') {
         setStatusMsg(res.error || 'Autofill failed')

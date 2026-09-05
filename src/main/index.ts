@@ -5,6 +5,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerIpcHandlers, lockVault, loadSettings } from './ipcHandlers'
 import { setSetting } from './db'
 import { startProcessMonitor, stopProcessMonitor, toggleOverlay, getCurrentRiotState } from './windowManager'
+import { initAutoUpdater } from './updater'
 
 process.on('uncaughtException', (err) => {
   console.error('[Umbral Main] Uncaught Exception:', err)
@@ -236,6 +237,7 @@ app.whenReady().then(() => {
   tray = createTray()
 
   registerIpcHandlers(overlayWindow)
+  initAutoUpdater(mainWindow)
 
   // Register Global Shortcut: Ctrl+Shift+O to force-toggle overlay on screen
   try {

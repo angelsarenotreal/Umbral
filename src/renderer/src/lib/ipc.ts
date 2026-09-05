@@ -16,6 +16,7 @@ export const api = {
   get riot() { return window.api.riot },
   get clipboard() { return window.api.clipboard },
   get shell() { return window.api.shell },
+  get updater() { return window.api.updater }
 }
 
 export async function withVault<T>(fn: () => Promise<{ status: string; data?: T; error?: string }>): Promise<T> {

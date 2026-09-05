@@ -95,6 +95,21 @@ const api: UmbralAPI = {
   // Shell
   shell: {
     openExternal: (url: string): Promise<IpcResponse> => ipcRenderer.invoke('shell:openExternal', url),
+  },
+
+  // Auto Updater
+  updater: {
+    check: (): Promise<IpcResponse<any>> => ipcRenderer.invoke('updater:check'),
+    download: (): Promise<IpcResponse> => ipcRenderer.invoke('updater:download'),
+    install: (): Promise<IpcResponse> => ipcRenderer.invoke('updater:install'),
+    getState: (): Promise<IpcResponse<any>> => ipcRenderer.invoke('updater:getState'),
+    onStatusChanged: (callback: (state: any) => void) => {
+      const handler = (_: any, state: any) => callback(state)
+      ipcRenderer.on('updater:statusChanged', handler)
+      return () => {
+        ipcRenderer.removeListener('updater:statusChanged', handler)
+      }
+    }
   }
 }
 

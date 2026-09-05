@@ -17,6 +17,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
+    "electron-updater": "^6.8.9",
     "lucide-react": "^0.428.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -40,6 +41,11 @@
   "build": {
     "appId": "com.umbral.app",
     "productName": "Umbral",
+    "publish": {
+      "provider": "github",
+      "owner": "angelsarenotreal",
+      "repo": "Umbral"
+    },
     "directories": {
       "output": "dist"
     },

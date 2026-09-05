@@ -130,4 +130,28 @@ export interface UmbralAPI {
   shell: {
     openExternal: (url: string) => Promise<IpcResponse>
   }
+  updater: {
+    check: () => Promise<IpcResponse<UpdateInfoState>>
+    download: () => Promise<IpcResponse>
+    install: () => Promise<IpcResponse>
+    getState: () => Promise<IpcResponse<UpdateInfoState>>
+    onStatusChanged: (callback: (state: UpdateInfoState) => void) => () => void
+  }
 }
+
+export interface UpdateProgress {
+  percent: number
+  bytesPerSecond: number
+  transferred: number
+  total: number
+}
+
+export interface UpdateInfoState {
+  status: 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'downloaded' | 'error'
+  version?: string
+  releaseDate?: string
+  releaseNotes?: string | string[]
+  progress?: UpdateProgress
+  error?: string
+}
+

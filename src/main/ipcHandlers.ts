@@ -726,6 +726,13 @@ function setWindowsStartupRegistry(enable: boolean): void {
       const updatedBlob = encrypt(JSON.stringify(account), vaultKey)
       saveAccount(account.id, updatedBlob, account.folderId, account.updatedAt)
 
+      // Broadcast update to all renderer windows so overlay & vault instantly refresh
+      BrowserWindow.getAllWindows().forEach(win => {
+        if (!win.isDestroyed()) {
+          win.webContents.send('vault:accountsUpdated')
+        }
+      })
+
       // Wipe sensitive memory
       ;(account as any).password = '0'.repeat(account.password.length)
       ;(account as any).username = ''
@@ -737,7 +744,7 @@ function setWindowsStartupRegistry(enable: boolean): void {
   })
 
   // Returns only non-sensitive account metadata for the overlay popup
-  ipcMain.handle('overlay:getAccounts', (): IpcResponse<Array<Pick<Account, 'id' | 'title' | 'summonerName' | 'summonerTag' | 'username' | 'rank' | 'iconId' | 'iconUrl' | 'rankLp' | 'region' | 'role'>>> => {
+  ipcMain.handle('overlay:getAccounts', (): IpcResponse<Array<Pick<Account, 'id' | 'title' | 'summonerName' | 'summonerTag' | 'username' | 'rank' | 'iconId' | 'iconUrl' | 'rankLp' | 'region' | 'role' | 'lastUsedAt' | 'updatedAt' | 'createdAt'>>> => {
     if (!vaultKey) return { status: 'error', error: 'Vault is locked' }
     try {
       const rows = getAllEncryptedAccounts()
@@ -756,9 +763,20 @@ function setWindowsStartupRegistry(enable: boolean): void {
           iconUrl: a.iconUrl,
           rankLp: a.rankLp,
           region: a.region,
-          role: a.role
+          role: a.role,
+          lastUsedAt: a.lastUsedAt || undefined,
+          updatedAt: a.updatedAt || row.updatedAt,
+          createdAt: a.createdAt || row.createdAt
         }
       })
+
+      // Sort accounts by lastUsedAt (or updatedAt / createdAt) descending so most recently used / clicked are at the top
+      accounts.sort((a, b) => {
+        const timeA = new Date(a.lastUsedAt || a.updatedAt || a.createdAt || 0).getTime()
+        const timeB = new Date(b.lastUsedAt || b.updatedAt || b.createdAt || 0).getTime()
+        return timeB - timeA
+      })
+
       return { status: 'ok', data: accounts }
     } catch (e: any) {
       return { status: 'error', error: e.message }

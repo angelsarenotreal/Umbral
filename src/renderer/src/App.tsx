@@ -9,6 +9,7 @@ import Vault from './pages/Vault'
 import PasswordGenerator from './pages/PasswordGenerator'
 import Settings from './pages/Settings'
 import Trash from './pages/Trash'
+import UpdateModal from './components/UpdateModal'
 import type { Account, Folder } from '../../shared/types'
 
 type AppState = 'loading' | 'setup' | 'locked' | 'unlocked'
@@ -262,13 +263,16 @@ export default function App(): JSX.Element {
     )
   }
 
-  if (state === 'setup' || state === 'locked') {
-    return <UnlockScreen mode={state === 'setup' ? 'setup' : 'unlock'} onUnlocked={handleUnlocked} />
-  }
-
   return (
-    <HashRouter>
-      <MainLayout onLock={handleLockState} />
-    </HashRouter>
+    <>
+      <UpdateModal />
+      {state === 'setup' || state === 'locked' ? (
+        <UnlockScreen mode={state === 'setup' ? 'setup' : 'unlock'} onUnlocked={handleUnlocked} />
+      ) : (
+        <HashRouter>
+          <MainLayout onLock={handleLockState} />
+        </HashRouter>
+      )}
+    </>
   )
 }
