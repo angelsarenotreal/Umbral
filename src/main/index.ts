@@ -2,7 +2,7 @@ import { app, BrowserWindow, Menu, Tray, nativeImage, globalShortcut } from 'ele
 import type { NativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { registerIpcHandlers, lockVault, loadSettings } from './ipcHandlers'
+import { registerIpcHandlers, lockVault, loadSettings, setWindowsStartupRegistry } from './ipcHandlers'
 import { setSetting } from './db'
 import { startProcessMonitor, stopProcessMonitor, toggleOverlay, getCurrentRiotState } from './windowManager'
 import { initAutoUpdater } from './updater'
@@ -14,6 +14,11 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason) => {
   console.error('[Umbral Main] Unhandled Rejection:', reason)
 })
+
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+}
 
 let mainWindow: BrowserWindow | null = null
 let overlayWindow: BrowserWindow | null = null
@@ -231,6 +236,19 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.show()
+      mainWindow.focus()
+    }
+  })
+
+  const settings = loadSettings()
+  if (settings.startWithWindows) {
+    setWindowsStartupRegistry(true)
+  }
 
   mainWindow = createMainWindow()
   overlayWindow = createOverlayWindow()

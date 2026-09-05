@@ -102,6 +102,36 @@ export function loadSettings(): Settings {
   }
 }
 
+export function setWindowsStartupRegistry(enable: boolean): void {
+  if (process.platform !== 'win32') return
+  const exePath = app.getPath('exe')
+
+  try {
+    app.setLoginItemSettings({
+      openAtLogin: enable,
+      path: exePath,
+      args: ['--hidden']
+    })
+  } catch (e) {
+    console.warn('[Umbral] app.setLoginItemSettings notice:', e)
+  }
+
+  if (enable) {
+    const escapedPath = exePath.replace(/\\/g, '\\\\')
+    const psScript = `$ErrorActionPreference = 'SilentlyContinue'; Remove-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'com.umbral.app' -ErrorAction SilentlyContinue; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'Umbral' -Value '\`"${escapedPath}\`" --hidden'; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run' -Name 'Umbral' -Value ([byte[]](2,0,0,0,0,0,0,0,0,0,0,0))`
+    exec(`powershell -NoProfile -NonInteractive -Command "${psScript}"`, (err) => {
+      if (err) console.warn('[Umbral] Failed to set registry startup:', err)
+      else console.log('[Umbral] Set Windows startup registry & StartupApproved keys successfully')
+    })
+  } else {
+    const psScript = `$ErrorActionPreference = 'SilentlyContinue'; Remove-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'Umbral' -ErrorAction SilentlyContinue; Remove-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'com.umbral.app' -ErrorAction SilentlyContinue; Remove-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run' -Name 'Umbral' -ErrorAction SilentlyContinue`
+    exec(`powershell -NoProfile -NonInteractive -Command "${psScript}"`, (err) => {
+      if (err) console.warn('[Umbral] Failed to delete registry startup:', err)
+      else console.log('[Umbral] Removed Windows startup registry keys successfully')
+    })
+  }
+}
+
 export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
   // ── Vault Init / Unlock / Auto-Unlock / Lock / Change Password ───────────────
 
@@ -584,22 +614,6 @@ export function registerIpcHandlers(overlayWindow: BrowserWindow): void {
     data: loadSettings()
   }))
 
-function setWindowsStartupRegistry(enable: boolean): void {
-  if (process.platform !== 'win32') return
-  const exePath = `\\"${process.execPath}\\" --hidden`
-  if (enable) {
-    exec(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v "Umbral" /t REG_SZ /d "${exePath}" /f`, (err) => {
-      if (err) console.warn('[Umbral] Failed to set registry startup:', err)
-      else console.log('[Umbral] Set Windows startup registry key successfully')
-    })
-  } else {
-    exec(`reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v "Umbral" /f`, (err) => {
-      if (err) console.warn('[Umbral] Failed to delete registry startup:', err)
-      else console.log('[Umbral] Removed Windows startup registry key successfully')
-    })
-  }
-}
-
   ipcMain.handle('settings:set', (_, newSettings: Partial<Settings>): IpcResponse => {
     try {
       const current = loadSettings()
@@ -608,11 +622,6 @@ function setWindowsStartupRegistry(enable: boolean): void {
 
       if (typeof newSettings.startWithWindows === 'boolean') {
         try {
-          app.setLoginItemSettings({
-            openAtLogin: newSettings.startWithWindows,
-            path: process.execPath,
-            args: ['--hidden']
-          })
           setWindowsStartupRegistry(newSettings.startWithWindows)
         } catch {}
       }
@@ -627,8 +636,9 @@ function setWindowsStartupRegistry(enable: boolean): void {
 
   ipcMain.handle('app:getLoginItemSettings', (): IpcResponse<{ openAtLogin: boolean }> => {
     try {
+      const exePath = app.getPath('exe')
       const itemSettings = app.getLoginItemSettings({
-        path: process.execPath,
+        path: exePath,
         args: ['--hidden']
       })
       const current = loadSettings()
@@ -640,11 +650,6 @@ function setWindowsStartupRegistry(enable: boolean): void {
 
   ipcMain.handle('app:setLoginItemSettings', (_, openAtLogin: boolean): IpcResponse => {
     try {
-      app.setLoginItemSettings({
-        openAtLogin,
-        path: process.execPath,
-        args: ['--hidden']
-      })
       setWindowsStartupRegistry(openAtLogin)
       const current = loadSettings()
       setSetting('settings', JSON.stringify({ ...current, startWithWindows: openAtLogin }))
